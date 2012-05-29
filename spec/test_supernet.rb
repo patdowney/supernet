@@ -152,5 +152,14 @@ describe "SuperNet" do
     super_net.net_overlap?(net).should be_true
   end
 
+  it "should deallocate a network if it exists" do
+    super_net = SuperNet.new("192.168.0.0/24")
+    super_net.preallocate("192.168.0.0/28").should be_true
+    super_net.deallocate("192.168.0.0/28").should be_true
+
+    # test that I can add it again
+    # (if the deallocation has failed, this should blow up
+    super_net.preallocate("192.168.0.0/28").should be_true
+  end
 end
 

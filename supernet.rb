@@ -28,6 +28,16 @@ class SuperNet
     return preallocate_net(net)
   end
 
+  def deallocate(network)
+    net = IPAddress.parse(network)
+    return deallocate_net(net)
+  end
+
+  def deallocate_net(net)
+    deleted = @allocated.delete?(net)
+    return deleted != nil
+  end
+
   def net_prefix_overlap?(net_a,net_b)
     if net_a.prefix < net_b.prefix
       return net_a.subnet(net_b.prefix).include?(net_b)
@@ -92,7 +102,11 @@ class SuperNet
 
     num_hosts_with_net_and_bcast = num_hosts + 2
 
-    host_bits = ( (0..max_bits).select {|i| num_hosts_with_net_and_bcast <= 2**i} .first )
+    # this bit of magic creates a list of possible netmasks that can contain
+    # num_hosts_with_net_and_bcast hosts and returns the smallest one found
+    #
+    # it's sorted by it's nature, which is why .first gives us what we want
+    host_bits = ((0..max_bits).select {|i| num_hosts_with_net_and_bcast <= 2**i}).first
 
     netmask = max_bits - host_bits
     return netmask
