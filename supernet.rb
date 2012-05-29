@@ -29,11 +29,6 @@ class SuperNet
     return pre_allocate_net(net)
   end
 
-  def net_range_overlap?(net_a,net_b)
-    outside = (net_a.last < net_b.first) || (net_a.first > net_b.last)
-    return ! outside
-  end
-
   def net_prefix_overlap?(net_a,net_b)
     if net_a.prefix < net_b.prefix
       return net_a.subnet(net_b.prefix).include?(net_b)
@@ -46,7 +41,6 @@ class SuperNet
     overlap_found = false
     @allocated.each do |net_b|
       overlap_found ||= net_prefix_overlap?(net_a, net_b)
-      #overlap_found ||= net_range_overlap?(net_a, net_b)
     end
     overlap_found
   end
