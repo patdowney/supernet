@@ -11,7 +11,6 @@ class SuperNet
   end
 
   def pre_allocate_net(net)
-#    if @allocated.include?(net)
     if net_overlap?(net)
       raise "#{net.address}/#{net.prefix} already allocated."
     else
@@ -42,16 +41,16 @@ class SuperNet
     @allocated.each do |net_b|
       overlap_found ||= net_prefix_overlap?(net_a, net_b)
     end
-    overlap_found
+    return overlap_found
   end
 
   def allocated?(network)
     net = IPAddress.parse(network)
-    net_allocated?(net)
+    return net_allocated?(net)
   end
 
   def net_allocated?(net)
-    @allocated.include? net
+    return @allocated.include?(net)
   end
 
   def allocate(netmask)
@@ -75,15 +74,15 @@ class SuperNet
 
   def allocate_for_hosts(num_hosts)
     netmask = netmask_for_hosts(num_hosts)
-    allocate(netmask) 
+    return allocate(netmask)
   end
 
   def max_hosts
-    2**max_bits
+    return 2**max_bits
   end
 
   def max_bits
-    32
+    return 32
   end
 
   def netmask_for_hosts(num_hosts)
@@ -96,6 +95,7 @@ class SuperNet
     host_bits = ( (0..max_bits).select {|i| num_hosts_with_net_and_bcast <= 2**i} .first )
 
     netmask = max_bits - host_bits
+    return netmask
   end
 
 end
