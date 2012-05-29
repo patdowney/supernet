@@ -10,14 +10,6 @@ class SuperNet
     @allocated = Set.new
   end
 
-  def all(netmask)
-    Set.new @network.subnet(netmask)
-  end
-
-  def available(netmask)
-    self.all(netmask).subtract @allocated
-  end
-
   def pre_allocate_net(net)
 #    if @allocated.include?(net)
     if net_overlap?(net)

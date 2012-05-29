@@ -3,12 +3,6 @@ require 'supernet'
 require 'ipaddress'
 
 describe "SuperNet" do
-  it "should list available networks" do
-    super_net = SuperNet.new( "192.168.0.0/24" )
-    available_nets = super_net.available(25)
-    available_nets.length.should == 2
-  end
-  
   it "should be able to pre-allocate an ip address" do
     super_net = SuperNet.new("192.168.0.0/24")
 
