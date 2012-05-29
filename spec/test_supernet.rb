@@ -6,15 +6,15 @@ describe "SuperNet" do
   it "should be able to pre-allocate an ip address" do
     super_net = SuperNet.new("192.168.0.0/24")
 
-    super_net.pre_allocate("192.168.0.16/28")
+    super_net.preallocate("192.168.0.16/28")
     super_net.allocated?("192.168.0.16/28").should be_true
    end
 
   it "should not allocate the same network more than once" do
     super_net = SuperNet.new("192.168.0.0/24")
-    super_net.pre_allocate("192.168.0.16/28").should be_true
+    super_net.preallocate("192.168.0.16/28").should be_true
 
-    expect { super_net.pre_allocate("192.168.0.16/28") }.to raise_error("192.168.0.16/28 already allocated.")
+    expect { super_net.preallocate("192.168.0.16/28") }.to raise_error("192.168.0.16/28 already allocated.")
   end
 
   it "should return false if a network hasn't been allocated yet" do
@@ -24,12 +24,12 @@ describe "SuperNet" do
 
   it "should raise an error if requested network is larger than supernet" do
     super_net = SuperNet.new("192.168.0.0/24")
-    expect { super_net.pre_allocate("192.168.0.0/23") }.to raise_error( "192.168.0.0/23 is larger than supernet 192.168.0.0/24." )
+    expect { super_net.preallocate("192.168.0.0/23") }.to raise_error( "192.168.0.0/23 is larger than supernet 192.168.0.0/24." )
   end
  
   it "overlap? should return true if requested net would overlap an already allocated smaller nets" do
     super_net = SuperNet.new("192.168.0.0/24")
-    super_net.pre_allocate("192.168.0.16/29").should be_true
+    super_net.preallocate("192.168.0.16/29").should be_true
     
     net = IPAddress.parse("192.168.0.16/28")
     super_net.net_overlap?(net).should be_true
@@ -40,7 +40,7 @@ describe "SuperNet" do
 
   it "overlap? should return truee if requested net would overlap an already allocated larger net" do
     super_net = SuperNet.new("192.168.0.0/24")
-    super_net.pre_allocate("192.168.0.16/29").should be_true
+    super_net.preallocate("192.168.0.16/29").should be_true
     
     net = IPAddress.parse("192.168.0.20/28")
     super_net.net_overlap?(net).should be_true
@@ -48,7 +48,7 @@ describe "SuperNet" do
 
   it "overlap? should return false if requested net would not overlap an already allocated net" do
     super_net = SuperNet.new("192.168.0.0/24")
-    super_net.pre_allocate("192.168.0.16/29").should be_true
+    super_net.preallocate("192.168.0.16/29").should be_true
     
     net = IPAddress.parse("192.168.0.20/29")
     super_net.net_overlap?(net).should be_false
@@ -56,8 +56,8 @@ describe "SuperNet" do
 
   it "should not allocate two networks that overlap" do
     super_net = SuperNet.new("192.168.0.0/24")
-    super_net.pre_allocate("192.168.0.16/29").should be_true
-    expect { super_net.pre_allocate("192.168.0.16/30") }.to raise_error("192.168.0.16/30 already allocated.")
+    super_net.preallocate("192.168.0.16/29").should be_true
+    expect { super_net.preallocate("192.168.0.16/30") }.to raise_error("192.168.0.16/30 already allocated.")
   end
 
   it "should allocate a network with the requested netmask" do
@@ -133,14 +133,14 @@ describe "SuperNet" do
   # this test against a silly mistake that I don't want to happen again.
   it "should test against all previous allocations", :fail=> true do
     super_net = SuperNet.new("192.168.0.0/24")
-    super_net.pre_allocate("192.168.0.0/28").should be_true
-    super_net.pre_allocate("192.168.0.16/30").should be_true
-    expect { super_net.pre_allocate("192.168.0.0/30") }.to raise_error("192.168.0.0/30 already allocated.")
+    super_net.preallocate("192.168.0.0/28").should be_true
+    super_net.preallocate("192.168.0.16/30").should be_true
+    expect { super_net.preallocate("192.168.0.0/30") }.to raise_error("192.168.0.0/30 already allocated.")
   end
 
   it "should overlap with these networks that differ only by netmask" do
     super_net = SuperNet.new("192.168.0.0/24")
-    super_net.pre_allocate("192.168.0.0/28").should be_true
+    super_net.preallocate("192.168.0.0/28").should be_true
     
     net = IPAddress.parse("192.168.0.0/30")
     super_net.net_overlap?(net).should be_true
