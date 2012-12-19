@@ -1,4 +1,4 @@
 source "https://rubygems.org"
 
 gem 'rspec'
-gem 'ipaddress'
+gem 'ipaddress', :git => "git://github.com/patdowney/ipaddress.git"
