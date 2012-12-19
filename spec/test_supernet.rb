@@ -32,10 +32,10 @@ describe "SuperNet" do
     super_net.reserve("192.168.0.16/29").should be_true
     
     net = IPAddress.parse("192.168.0.16/28")
-    super_net.net_overlap?(net).should be_true
+    super_net.overlaps?(net).should be_true
 
     net = IPAddress.parse("192.168.0.16/30")
-    super_net.net_overlap?(net).should be_true
+    super_net.overlaps?(net).should be_true
   end
 
   it "overlap? should return true if requested net would overlap an already allocated larger net" do
@@ -43,7 +43,7 @@ describe "SuperNet" do
     super_net.reserve("192.168.0.16/29").should be_true
     
     net = IPAddress.parse("192.168.0.20/28")
-    super_net.net_overlap?(net).should be_true
+    super_net.overlaps?(net).should be_true
   end
 
   it "overlap? should return false if requested net would not overlap an already allocated net" do
@@ -51,7 +51,7 @@ describe "SuperNet" do
     super_net.reserve("192.168.0.16/29").should be_true
     
     net = IPAddress.parse("192.168.0.20/29")
-    super_net.net_overlap?(net).should be_false
+    super_net.overlaps?(net).should be_false
   end
 
   it "should not allocate two networks that overlap" do
@@ -143,13 +143,13 @@ describe "SuperNet" do
     super_net.reserve("192.168.0.0/28").should be_true
     
     net = IPAddress.parse("192.168.0.0/30")
-    super_net.net_overlap?(net).should be_true
+    super_net.overlaps?(net).should be_true
 
     net = IPAddress.parse("192.168.0.0/28")
-    super_net.net_overlap?(net).should be_true
+    super_net.overlaps?(net).should be_true
 
     net = IPAddress.parse("192.168.0.0/29")
-    super_net.net_overlap?(net).should be_true
+    super_net.overlaps?(net).should be_true
   end
 
   it "should deallocate a network if it exists" do

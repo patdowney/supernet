@@ -10,8 +10,32 @@ class SuperNet
     @allocated = Set.new
   end
 
-  def reserve_net(net)
-    if net_overlap?(net)
+  def resolve_network(network)
+    if network.is_a?(String)
+      network = IPAddress.parse(network)
+    end
+    return network
+  end
+
+  def net_prefix_overlap?(net_a,net_b)
+    if net_a.prefix < net_b.prefix
+      return net_a.subnet(net_b.prefix).include?(net_b)
+    else
+      return net_b.subnet(net_a.prefix).include?(net_a)
+    end
+  end
+
+  def overlaps?(net_a)
+    overlap_found = false
+    @allocated.each do |net_b|
+      overlap_found ||= net_prefix_overlap?(net_a, net_b)
+    end
+    return overlap_found
+  end
+
+  def reserve(network)
+    net = resolve_network(network)
+    if overlaps?(net)
       raise "#{net.address}/#{net.prefix} already allocated."
     else
       if net.prefix >= @network.prefix
@@ -23,43 +47,14 @@ class SuperNet
     return net
   end
 
-  def reserve(network)
-    net = IPAddress.parse(network)
-    return reserve_net(net)
-  end
-
   def deallocate(network)
-    net = IPAddress.parse(network)
-    return deallocate_net(net)
-  end
-
-  def deallocate_net(net)
+    net = resolve_network(network)
     deleted = @allocated.delete?(net)
     return deleted != nil
   end
 
-  def net_prefix_overlap?(net_a,net_b)
-    if net_a.prefix < net_b.prefix
-      return net_a.subnet(net_b.prefix).include?(net_b)
-    else
-      return net_b.subnet(net_a.prefix).include?(net_a)
-    end
-  end
-
-  def net_overlap?(net_a)
-    overlap_found = false
-    @allocated.each do |net_b|
-      overlap_found ||= net_prefix_overlap?(net_a, net_b)
-    end
-    return overlap_found
-  end
-
   def allocated?(network)
-    net = IPAddress.parse(network)
-    return net_allocated?(net)
-  end
-
-  def net_allocated?(net)
+    net = resolve_network(network)
     return @allocated.include?(net)
   end
 
@@ -67,8 +62,8 @@ class SuperNet
     all_subnets = @network.subnet(netmask)
     allocated_net = nil
     all_subnets.each do |net|
-      if not net_allocated?(net)
-        if not net_overlap?(net)
+      if not allocated?(net)
+        if not overlaps?(net)
           allocated_net = net
           break
         end
@@ -79,7 +74,7 @@ class SuperNet
       raise "Unable to allocate /#{netmask} network."
     end
 
-    return reserve_net(allocated_net)
+    return reserve(allocated_net)
   end
 
   def allocate_for_hosts(num_hosts)
