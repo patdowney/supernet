@@ -10,7 +10,7 @@ class SuperNet
     @allocated = Set.new
   end
 
-  def preallocate_net(net)
+  def reserve_net(net)
     if net_overlap?(net)
       raise "#{net.address}/#{net.prefix} already allocated."
     else
@@ -23,9 +23,9 @@ class SuperNet
     return net
   end
 
-  def preallocate(network)
+  def reserve(network)
     net = IPAddress.parse(network)
-    return preallocate_net(net)
+    return reserve_net(net)
   end
 
   def deallocate(network)
@@ -79,7 +79,7 @@ class SuperNet
       raise "Unable to allocate /#{netmask} network."
     end
 
-    return preallocate_net(allocated_net)
+    return reserve_net(allocated_net)
   end
 
   def allocate_for_hosts(num_hosts)
