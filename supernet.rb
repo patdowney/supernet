@@ -1,4 +1,4 @@
-require 'ipaddress'
+require 'ext/ipaddress'
 require 'set'
 
 class SuperNet
@@ -19,9 +19,9 @@ class SuperNet
 
   def net_prefix_overlap?(net_a,net_b)
     if net_a.prefix < net_b.prefix
-      return net_a.subnet(net_b.prefix).include?(net_b)
+      return net_a.subnet_net(net_b.prefix).include?(net_b)
     else
-      return net_b.subnet(net_a.prefix).include?(net_a)
+      return net_b.subnet_net(net_a.prefix).include?(net_a)
     end
   end
 
