@@ -62,11 +62,9 @@ class SuperNet
     all_subnets = @network.subnet(netmask)
     allocated_net = nil
     all_subnets.each do |net|
-      if not allocated?(net)
-        if not overlaps?(net)
+      unless allocated?(net) or overlaps?(net)
           allocated_net = net
           break
-        end
       end
     end
 
