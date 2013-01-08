@@ -3,30 +3,49 @@ require 'supernet'
 require 'ipaddress'
 
 describe "SuperNet" do
-  it "should be able to pre-allocate an ip address" do
+  it "should be able to pre-allocate an ipv4 address" do
     super_net = SuperNet.new("192.168.0.0/24")
 
     super_net.reserve("192.168.0.16/28")
-    super_net.allocated?("192.168.0.16/28").should be_true
-   end
+    super_net.already_allocated?("192.168.0.16/28").should be_true
+  end
 
-  it "should not allocate the same network more than once" do
+  it "should be able to pre-allocate an ipv6 address" do
+    super_net = SuperNet.new("fd00::/120")
+
+    super_net.reserve("fd00::/124")
+    super_net.already_allocated?("fd00::/124").should be_true
+  end
+
+  it "should not allocate the same ipv4 network more than once" do
     super_net = SuperNet.new("192.168.0.0/24")
     super_net.reserve("192.168.0.16/28").should be_true
 
     expect { super_net.reserve("192.168.0.16/28") }.to raise_error("192.168.0.16/28 already allocated.")
   end
 
-  it "should return false if a network hasn't been allocated yet" do
-    super_net = SuperNet.new("192.168.0.0/24")
-    super_net.allocated?("192.168.0.32/28").should be_false
+  it "should not allocate the same ipv6 network more than once" do
+    super_net = SuperNet.new("fd00::/120")
+    super_net.reserve("fd00::/124").should be_true
+
+    expect { super_net.reserve("fd00::/124") }.to raise_error("fd00:0000:0000:0000:0000:0000:0000:0000/124 already allocated.")
   end
 
-  it "should raise an error if requested network is larger than supernet" do
+  it "should return false if a network hasn't been allocated yet" do
+    super_net = SuperNet.new("192.168.0.0/24")
+    super_net.already_allocated?("192.168.0.32/28").should be_false
+  end
+
+  it "should raise an error if requested ipv4 network is larger than supernet" do
     super_net = SuperNet.new("192.168.0.0/24")
     expect { super_net.reserve("192.168.0.0/23") }.to raise_error( "192.168.0.0/23 is larger than supernet 192.168.0.0/24." )
   end
- 
+
+  #it "should raise an error if requested ipv6 network is larger than supernet" do
+  #  super_net = SuperNet.new("fd00::/124")
+  #  expect { super_net.reserve("fd00::/123") }.to raise_error( "fd00:0000:0000:0000:0000:0000:0000:0000/123 is larger than supernet fd00:0000:0000:0000:0000:0000:0000:0000/124." )
+  #end
+
   it "overlap? should return true if requested net would overlap an already allocated smaller nets" do
     super_net = SuperNet.new("192.168.0.0/24")
     super_net.reserve("192.168.0.16/29").should be_true
@@ -60,13 +79,20 @@ describe "SuperNet" do
     expect { super_net.reserve("192.168.0.16/30") }.to raise_error("192.168.0.16/30 already allocated.")
   end
 
-  it "should allocate a network with the requested netmask" do
+  it "should allocate a ipv4 network with the requested netmask" do
     super_net = SuperNet.new("192.168.0.0/24")
 
     new_net = super_net.allocate(25)
 
     new_net.prefix.to_i.should  == 25
     new_net.network.address.should == "192.168.0.0"
+  end
+
+  # needs a new title
+  it "should not allocate a ipv6 network with a smaller netmask than assigned to the supernet" do
+    super_net = SuperNet.new("fd00::/124")
+
+    expect { new_net = super_net.allocate(123) }.to raise_error("New prefix(123) must be between 124 and 128")
   end
 
   it "should allocate consecutive network with the requested netmask" do

@@ -18,10 +18,12 @@ class SuperNet
   end
 
   def net_prefix_overlap?(net_a,net_b)
+    # this is a naive implementation and
+    # gets exponentially slower - could do with some more thought
     if net_a.prefix < net_b.prefix
-      return net_a.subnet_net(net_b.prefix).include?(net_b)
+      return net_a.subnet(net_b.prefix.to_i).include?(net_b)
     else
-      return net_b.subnet_net(net_a.prefix).include?(net_a)
+      return net_b.subnet(net_a.prefix.to_i).include?(net_a)
     end
   end
 
@@ -53,7 +55,7 @@ class SuperNet
     return deleted != nil
   end
 
-  def allocated?(network)
+  def already_allocated?(network)
     net = resolve_network(network)
     return @allocated.include?(net)
   end
@@ -62,7 +64,7 @@ class SuperNet
     all_subnets = @network.subnet(netmask)
     allocated_net = nil
     all_subnets.each do |net|
-      unless allocated?(net) or overlaps?(net)
+      unless already_allocated?(net) or overlaps?(net)
           allocated_net = net
           break
       end
@@ -85,7 +87,7 @@ class SuperNet
   end
 
   def max_bits
-    return 32
+    return @network.bits.length
   end
 
   def netmask_for_hosts(num_hosts)
